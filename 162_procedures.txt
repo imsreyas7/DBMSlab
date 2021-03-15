@@ -1,0 +1,294 @@
+SQL> @v:/procedures.sql
+SQL> REM #####################################################################
+SQL> REM	  SEM 4 : UCS 1412 DATABASE LAB 
+SQL> REM	  EX6 PL/SQL PROCEDURES & FUNCTIONS
+SQL> REM          SREYAS V	CSE C	185001162
+SQL> REM #####################################################################
+SQL> 
+SQL> REM     ########################################################################################
+SQL> REM     1. Write a stored function to display the total number of pizzas ordered by the given
+SQL> REM     order number.
+SQL> REM     ########################################################################################
+SQL> 
+SQL> CREATE OR REPLACE FUNCTION no_orders
+  2  (order_id IN orders.order_no % TYPE)
+  3  RETURN NUMBER IS
+  4  
+  5  	 no_of_orders NUMBER(4);
+  6  
+  7  	 CURSOR order_details IS
+  8  	     SELECT SUM(qty)
+  9  	     FROM order_list
+ 10  	     WHERE order_no = order_id;
+ 11  
+ 12  BEGIN
+ 13  
+ 14  	 no_of_orders := 0;
+ 15  	 OPEN order_details;
+ 16  
+ 17  	 FETCH order_details INTO no_of_orders;
+ 18  
+ 19  	 IF order_details % NOTFOUND THEN
+ 20  	     DBMS_OUTPUT.PUT_LINE('Order ID: '|| order_id ||' does not exist');
+ 21  	 END IF;
+ 22  
+ 23  	 CLOSE order_details;
+ 24  	 RETURN no_of_orders;
+ 25  
+ 26  END;
+ 27  /
+
+Function created.
+
+SQL> 
+SQL> SELECT  no_orders(o.order_no) AS no_orders
+  2  FROM    orders o
+  3  WHERE   order_no = 'OP100';
+
+ NO_ORDERS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+        11                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
+SQL> 
+SQL> SELECT  qty
+  2  FROM    order_list
+  3  WHERE   order_no = 'OP100';
+
+       QTY                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+         3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+         2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+         1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+         5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
+SQL> 
+SQL> SELECT  SUM(qty)
+  2  FROM    order_list
+  3  WHERE   order_no = 'OP100';
+
+  SUM(QTY)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+        11                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
+SQL> 
+SQL> REM     ########################################################################################
+SQL> REM     2. Write a PL/SQL block to calculate the total amount, discount and billable amount
+SQL> REM     (Amount to be paid) as given below:
+SQL> REM     For total amount > 2000 and total amount < 5000:  Discount=5%
+SQL> REM     For total amount > 5000 and total amount < 10000:	Discount=10%
+SQL> REM     For total amount > 10000:	Discount=20%
+SQL> REM     Calculate the billable amount (after the discount) and update the same in orders table.
+SQL> REM     Bill Amount = Total Ц Discount.
+SQL> REM     ########################################################################################
+SQL> 
+SQL> CREATE OR REPLACE PROCEDURE calc_bill
+  2  (order_id IN orders.order_no % TYPE,
+  3  total OUT orders.total_amt % TYPE) AS
+  4  
+  5  	 disc orders.discount % TYPE;
+  6  	 disc_amt orders.total_amt % TYPE;
+  7  	 billed_amt orders.bill_amt % TYPE;
+  8  
+  9  
+ 10  	 CURSOR order_finder IS
+ 11  	     SELECT  SUM(qty * unit_price)
+ 12  	     FROM    pizza, order_list
+ 13  	     WHERE   order_list.pizza_id = pizza.pizza_id
+ 14  	     AND     order_no = order_id;
+ 15  
+ 16  	 BEGIN
+ 17  
+ 18  	     total := 0;
+ 19  	     OPEN order_finder;
+ 20  
+ 21  	     FETCH order_finder INTO total;
+ 22  
+ 23  	     IF total IS NOT NULL THEN
+ 24  
+ 25  		 IF total > 10000 THEN
+ 26  		     disc := 0.20;
+ 27  		 ELSIF total > 5000 THEN
+ 28  		     disc := 0.10;
+ 29  		 ELSIF total > 2000 THEN
+ 30  		     disc := 0.05;
+ 31  		 ELSE
+ 32  		     disc := 0.0;
+ 33  		 END IF;
+ 34  
+ 35  		 disc_amt := disc * total;
+ 36  		 billed_amt := total - disc_amt;
+ 37  
+ 38  		 UPDATE orders
+ 39  		 SET total_amt = total,
+ 40  		     discount = disc,
+ 41  		     bill_amt = billed_amt
+ 42  		 WHERE order_no = order_id;
+ 43  
+ 44  		 DBMS_OUTPUT.PUT_LINE('Total Amount ' || LPAD(': $', 10) || total);
+ 45  		 DBMS_OUTPUT.PUT_LINE('Discount '|| LPAD(': ', 13) || (disc * 100) || '%');
+ 46  		 DBMS_OUTPUT.PUT_LINE('Discount Amount '|| LPAD(': $', 7) || disc_amt);
+ 47  		 DBMS_OUTPUT.PUT_LINE('Billable Amount '|| LPAD(': $', 7) || billed_amt);
+ 48  
+ 49  		 CLOSE order_finder;
+ 50  
+ 51  	     ELSE
+ 52  		 DBMS_OUTPUT.PUT_LINE('Order Number ' || order_id || ' does not exist.');
+ 53  	     END IF;
+ 54  END;
+ 55  /
+
+Procedure created.
+
+SQL> 
+SQL> DECLARE
+  2  	 order_id VARCHAR2(10);
+  3  	 total orders.total_amt % TYPE;
+  4  BEGIN
+  5  	 order_id := '&order_id';
+  6  	 calc_bill(order_id, total);
+  7  END;
+  8  /
+Enter value for order_id: OP100
+old   5:     order_id := '&order_id';
+new   5:     order_id := 'OP100';
+
+Total Amount        : $2350                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Discount            : 5%                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Discount Amount     : $117.5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Billable Amount     : $2232.5 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+PL/SQL procedure successfully completed.
+
+SQL> 
+SQL> SELECT  *
+  2  FROM    orders
+  3  WHERE   order_no = 'OP100';
+
+ORDER CUST ORDER_DAT DELV_DATE  TOTAL_AMT   DISCOUNT   BILL_AMT                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+----- ---- --------- --------- ---------- ---------- ----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+OP100 c001 28-JUN-15 30-JUN-15       2350        .05     2232.5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+
+SQL> 
+SQL> REM     ########################################################################################
+SQL> REM     3. For the given order number, write a PL/SQL block to print the order as shown below:
+SQL> REM     Hint: Use the PL/SQL blocks created in 1 and 2.
+SQL> REM             ************************************************************
+SQL> REM             Order Number:OP104 Customer Name: Hari
+SQL> REM             Order Date :29нJunн2015 Phone: 9001200031 
+SQL> REM             ************************************************************
+SQL> REM             SNo Pizza Type Qty Price  Amount 
+SQL> REM              1.  Italian    6    200   1200 
+SQL> REM              2.  Spanish    5    260   1300 
+SQL> REM             нннннннннннннннннннннннннннннннннннннннннннннннннннннн 
+SQL> REM                  Total =   11
+SQL> REM             нннннннннннннннннннннннннннннннннннннннннннннннннннннн 
+SQL> REM             Total Amount  :Rs.2500 
+SQL> REM             Discount (5%) :Rs. 125 
+SQL> REM             нннннннннннннннннннннннннн нннн
+SQL> REM             Amount to be paid :Rs.2375 
+SQL> REM             нннннннннннннннннннннннннн нннн
+SQL> REM             Great Offers! Discount up to 25% on DIWALI Festival Day... 
+SQL> REM             *************************************************************
+SQL> REM     ########################################################################################## 
+SQL> 
+SQL> CREATE OR REPLACE PROCEDURE print_bill
+  2  (order_id IN orders.order_no % TYPE) AS
+  3  
+  4  	 order_no orders.order_no % TYPE;
+  5  	 order_date orders.order_date % TYPE;
+  6  	 cust_name customer.cust_name % TYPE;
+  7  	 phone customer.phone % TYPE;
+  8  	 pizza_type pizza.pizza_type % TYPE;
+  9  	 qty order_list.qty % TYPE;
+ 10  	 unit_price pizza.unit_price % TYPE;
+ 11  	 total orders.total_amt % TYPE;
+ 12  	 s_no NUMBER(3);
+ 13  	 amount NUMBER(7);
+ 14  
+ 15  	 CURSOR order_details IS
+ 16  	     SELECT order_no, order_date, cust_name, phone
+ 17  	     FROM orders, customer
+ 18  	     WHERE orders.cust_id = customer.cust_id
+ 19  	     AND order_no = order_id;
+ 20  
+ 21  	 CURSOR pizza_details IS
+ 22  	     SELECT pizza_type, qty, unit_price
+ 23  	     FROM pizza, order_list
+ 24  	     WHERE pizza.pizza_id = order_list.pizza_id
+ 25  	     AND order_no = order_id;
+ 26  
+ 27  BEGIN
+ 28  
+ 29  	 s_no := 0;
+ 30  	 OPEN order_details;
+ 31  
+ 32  	 FETCH order_details INTO order_no, order_date, cust_name, phone;
+ 33  
+ 34  	 IF order_details % FOUND THEN
+ 35  	     DBMS_OUTPUT.PUT_LINE('**************************************************************');
+ 36  	     DBMS_OUTPUT.PUT_LINE('Order Number: '|| order_no || LPAD('Customer Name: ', 20) || cust_name);
+ 37  	     DBMS_OUTPUT.PUT_LINE('Order Date : '|| order_date || CHR(9) || 'Phone: ' || phone);
+ 38  	     DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------');
+ 39  	     CLOSE order_details;
+ 40  
+ 41  	     DBMS_OUTPUT.PUT_LINE('S.No. ' || CHR(9) || 'Pizza Type' || CHR(9) || 'Qty.' || CHR(9) || 'Price' || CHR(9) || 'Amount');
+ 42  
+ 43  	     FOR record in pizza_details LOOP
+ 44  		 s_no := s_no + 1;
+ 45  		 amount := record.qty * record.unit_price;
+ 46  		 DBMS_OUTPUT.PUT_LINE(RPAD(s_no, 5) || CHR(9) || RPAD(record.pizza_type, 16) || LPAD(record.qty, 4) || LPAD(record.unit_price, 9) || LPAD(amount, 9));
+ 47  	     END LOOP;
+ 48  
+ 49  	     DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------');
+ 50  	     DBMS_OUTPUT.PUT_LINE('Total : ' || LPAD(no_orders(order_id), 20));
+ 51  	     DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------');
+ 52  
+ 53  	     calc_bill(order_id, total);
+ 54  
+ 55  	     DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------');
+ 56  	     DBMS_OUTPUT.PUT_LINE('Great Offers! Discount up to 25% on DIWALI Festival Day...');
+ 57  	     DBMS_OUTPUT.PUT_LINE('**************************************************************');
+ 58  
+ 59  	 ELSE
+ 60  	     DBMS_OUTPUT.PUT_LINE('Order ID: ' || order_id || ' does not exist.');
+ 61  	 END IF;
+ 62  END;
+ 63  /
+
+Procedure created.
+
+SQL> 
+SQL> DECLARE
+  2  	     order_id VARCHAR2(5);
+  3  BEGIN
+  4  	     order_id := '&order_id';
+  5  	     print_bill(order_id);
+  6  END;
+  7  /
+Enter value for order_id: OP100
+old   4: 	order_id := '&order_id';
+new   4: 	order_id := 'OP100';
+
+************************************************************
+Order Number:OP100 Customer Name: Hari
+Order Date :28нJunн2015 Phone: 9001200031 
+************************************************************
+SNo Pizza Type Qty Price  Amount 
+1.    pan        3    130   390 
+2.    grilled    2    230   460 
+3.    italian    1    200   200
+4.    spanish    5    230   1300
+нннннннннннннннннннннннннннннннннннннннннннннннннннннн------ 
+      Total =   11  
+ннннннннннннннннннннннннннннннннннннн------ннннннннннннннннн 
+Total Amount  :$2350 
+Discount (5%) :$117.5 
+нннннннннннннннннннннннннн------------------------------нннн
+Amount to be paid :$2232.5
+-ннннннннннннннннннннннннн------------------------------нннн
+Great Offers! Discount up to 25% on DIWALI Festival Day... 
+*************************************************************
+PL/SQL procedure successfully completed.
+
+SQL> 
+SQL> REM     ########################################################################################
+SQL> REM				     END OF SCRIPT FILE
+SQL> REM     ########################################################################################
+SQL> spool off
