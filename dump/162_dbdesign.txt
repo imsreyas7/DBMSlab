@@ -1,0 +1,381 @@
+SQL> @v:/162db.sql
+SQL> REM UCS1412 - DATABASE LAB | SEMESTER 4
+SQL> REM 9A - DATABASE DESIGN USING NORMAL FORMS
+SQL> REM SREYAS V    |	     CSE C   |	     185001162
+SQL> REM ===========================================================================================================================================================
+SQL> REM Creating a table in 1 NF
+SQL> REM COMPANY(empid, name, address, bdate, sex, salary, dno, dname, mgr_id, pno, pname, pdno, hrs)
+SQL> REM ===========================================================================================================================================================
+SQL> 
+SQL> REM Primary Key : (empid, pid)
+SQL> 
+SQL> DROP TABLE COMPANY;
+
+Table dropped.
+
+SQL> 
+SQL> CREATE TABLE COMPANY(
+  2  	 empid NUMBER,
+  3  	 name VARCHAR(20),
+  4  	 address VARCHAR(40),
+  5  	 bdate DATE,
+  6  	 sex CHAR(1),
+  7  	 salary NUMBER,
+  8  	 dno NUMBER,
+  9  	 dname VARCHAR(20),
+ 10  	 mgr_id NUMBER,
+ 11  	 pno NUMBER,
+ 12  	 pname VARCHAR(20),
+ 13  	 pdno NUMBER,
+ 14  	 hrs NUMBER,
+ 15  	 CONSTRAINT company_pk PRIMARY KEY (empid, pno)
+ 16  );
+
+Table created.
+
+SQL> 
+SQL> 
+SQL> REM ******* TABLE POPULATION ********
+SQL> 
+SQL> INSERT INTO COMPANY VALUES(123456789,'John Smith','731 Fondren, Houston TX','09-jan-1965','M',30000,5,'Research',333445555,1,'ProductX',5,32);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(123456789,'John Smith','731 Fondren, Houston TX','09-jan-1965','M',30000,5,'Research',333445555,2,'ProductY',5,8);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(333445555,'Franklin Wong','638 Voss, Houston TX','08-dec-1955','M',40000,5,'Research',333445555,2,'ProductY',5,10);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(333445555,'Franklin Wong','638 Voss, Houston TX','08-dec-1955','M',40000,5,'Research',333445555,3,'ProductZ',5,10);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(333445555,'Franklin Wong','638 Voss, Houston TX','08-dec-1955','M',40000,5,'Research',333445555,10,'Computerization',4,10);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(333445555,'Franklin Wong','638 Voss, Houston TX','08-dec-1955','M',40000,5,'Research',333445555,20,'Reorganization',1,10);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(999887777,'Alicia Zelaya','3321 Castle, Spring TX','19-jan-1968','F',25000,4,'Administration',987654321,30,'Newbenefits',4,30);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(999887777,'Alicia Zelaya','3321 Castle, Spring TX','19-jan-1968','F',25000,4,'Administration',987654321,10,'Computerization',4,10);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(987654321,'Jennifer Wallace','291 Berry, Bellaire TX','20-jun-1941','F',43000,4,'Administration',987654321,30,'Newbenefits',4,20);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(987654321,'Jennifer Wallace','291 Berry, Bellaire TX','20-jun-1941','F',43000,4,'Administration',987654321,20,'Reorganization',4,10);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(666884444,'Ramesh Narayan','975 Fire Oak, Humble TX','15-sep-1962','M',38000,5,'Research',333445555,3,'ProductZ',5,40);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(453453453,'Joyce English','5631 Rice, Houston TX','31-jul-1972','F',25000,5,'Research',333445555,1,'ProductX',5,20);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(453453453,'Joyce English','5631 Rice, Houston TX','31-jul-1972','F',25000,5,'Research',333445555,2,'ProductY',5,20);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(987987987,'Ahmed Jabbar','980 Dallas, Houston TX','29-mar-1969','M',25000,4,'Administration',987654321,10,'Computerization',4,35);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(987987987,'Ahmed Jabbar','980 Dallas, Houston TX','29-mar-1969','M',25000,4,'Administration',987654321,30,'Newbenefits',4,5);
+
+1 row created.
+
+SQL> INSERT INTO COMPANY VALUES(888665555,'James Borg','450 Stone, Houston TX','10-nov-1937','M',55000,1,'Headquarters',888665555,20,'Reorganization',1,NULL);
+
+1 row created.
+
+SQL> 
+SQL> REM ===========================================================================================================================================================
+SQL> REM Creating a tables in  3NF
+SQL> REM EMPLOYEES(empid, name, address, bdate, sex, salary) PRIMARY KEY: empid
+SQL> REM PROJECT(pno, pname, pdno) PRIMARY KEY: pno
+SQL> REM DEPARTMENTS(dno, dname, mgr_id) PRIMARY KEY: dno
+SQL> REM HOURS(empid, pno, hrs) PRIMARY KEY: (empid, pno)
+SQL> REM ===========================================================================================================================================================
+SQL> 
+SQL> DROP TABLE DEPARTMENTS;
+DROP TABLE DEPARTMENTS
+
+Table dropped.
+
+SQL> DROP TABLE EMPLOYEES;
+
+Table dropped.
+
+SQL> DROP TABLE PROJECT;
+
+Table dropped.
+
+SQL> DROP TABLE WORKING_HOURS;
+
+Table dropped.
+
+SQL> 
+SQL> CREATE TABLE DEPARTMENTS(
+  2  	 dno NUMBER,
+  3  	 dname VARCHAR(20),
+  4  	 mgr_id NUMBER,
+  5  	 CONSTRAINT dept_pk1 PRIMARY KEY (dno)
+  6  );
+
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE EMPLOYEES(
+  2  	 empid NUMBER,
+  3  	 name VARCHAR(20),
+  4  	 address VARCHAR(40),
+  5  	 bdate DATE,
+  6  	 sex CHAR(1),
+  7  	 salary NUMBER,
+  8  	 dno NUMBER,
+  9  	 CONSTRAINT EMPLOYEES_pk PRIMARY KEY (empid),
+ 10  	 CONSTRAINT dept_fk FOREIGN KEY (dno) REFERENCES DEPARTMENTS(dno)
+ 11  );
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE PROJECT(
+  2  	 pno NUMBER,
+  3  	 pname VARCHAR(20),
+  4  	 pdno NUMBER,
+  5  	 CONSTRAINT project_pk PRIMARY KEY (pno)
+  6  );
+
+Table created.
+
+SQL> 
+SQL> CREATE TABLE WORKING_HOURS(
+  2  	 empid NUMBER,
+  3  	 pno NUMBER,
+  4  	 hrs NUMBER,
+  5  	 CONSTRAINT hrs_pk PRIMARY KEY (empid, pno)
+  6  );
+
+Table created.
+
+SQL> 
+SQL> REM ******* TABLE POPULATION ********
+SQL> 
+SQL> INSERT INTO DEPARTMENTS VALUES(5,'Research',333445555);
+
+1 row created.
+
+SQL> INSERT INTO DEPARTMENTS VALUES(4,'Administration',987654321);
+
+1 row created.
+
+SQL> INSERT INTO DEPARTMENTS VALUES(1,'Headquarters',888665555);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO EMPLOYEES VALUES(123456789,'John Smith','731 Fondren, Houston TX','09-jan-1965','M',30000,5);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(333445555,'Franklin Wong','638 Voss, Houston TX','08-dec-1955','M',40000,5);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(999887777,'Alicia Zelaya','3321 Castle, Spring TX','19-jan-1968','F',25000,4);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(987654321,'Jennifer Wallace','291 Berry, Bellaire TX','20-jun-1941','F',43000,4);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(666884444,'Ramesh Narayan','975 Fire Oak, Humble TX','15-sep-1962','M',38000,5);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(453453453,'Joyce English','5631 Rice, Houston TX','31-jul-1972','F',25000,5);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(987987987,'Ahmed Jabbar','980 Dallas, Houston TX','29-mar-1969','M',25000,4);
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEES VALUES(888665555,'James Borg','450 Stone, Houston TX','10-nov-1937','M',55000,1);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO PROJECT VALUES(1,'ProductX',5);
+
+1 row created.
+
+SQL> INSERT INTO PROJECT VALUES(2,'ProductY',5);
+
+1 row created.
+
+SQL> INSERT INTO PROJECT VALUES(3,'ProductY',5);
+
+1 row created.
+
+SQL> INSERT INTO PROJECT VALUES(10,'Computerization',4);
+
+1 row created.
+
+SQL> INSERT INTO PROJECT VALUES(20,'Reorganization',4);
+
+1 row created.
+
+SQL> INSERT INTO PROJECT VALUES(30,'Newbenefits',1);
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO WORKING_HOURS VALUES(123456789,1,32);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(123456789,2,8);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(333445555,2,10);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(333445555,3,10);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(333445555,10,10);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(333445555,20,10);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(999887777,30,30);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(999887777,10,10);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(987654321,30,20);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(987654321,20,10);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(666884444,3,40);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(453453453,1,20);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(453453453,2,20);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(987987987,10,35);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(987987987,30,5);
+
+1 row created.
+
+SQL> INSERT INTO WORKING_HOURS VALUES(888665555,20,NULL);
+
+1 row created.
+
+SQL> 
+SQL> REM ===========================================================================================================================================================
+SQL> REM **** VERIFYING LOSSLESS JOIN PROPERTY *****
+SQL> REM ===========================================================================================================================================================
+SQL> 
+SQL> REM *** 1NF TABLE ***
+SQL> 
+SQL> SELECT *
+  2  FROM COMPANY;
+
+     EMPID NAME                 ADDRESS                                  BDATE     S     SALARY        DNO DNAME                    MGR_ID        PNO PNAME                      PDNO        HRS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+---------- -------------------- ---------------------------------------- --------- - ---------- ---------- -------------------- ---------- ---------- -------------------- ---------- ----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 123456789 John Smith           731 Fondren, Houston TX                  09-JAN-65 M      30000          5 Research              333445555          1 ProductX                      5         32                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 123456789 John Smith           731 Fondren, Houston TX                  09-JAN-65 M      30000          5 Research              333445555          2 ProductY                      5          8                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000          5 Research              333445555          2 ProductY                      5         10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000          5 Research              333445555          3 ProductZ                      5         10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000          5 Research              333445555         10 Computerization               4         10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000          5 Research              333445555         20 Reorganization                1         10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 999887777 Alicia Zelaya        3321 Castle, Spring TX                   19-JAN-68 F      25000          4 Administration        987654321         30 Newbenefits                   4         30                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 999887777 Alicia Zelaya        3321 Castle, Spring TX                   19-JAN-68 F      25000          4 Administration        987654321         10 Computerization               4         10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 987654321 Jennifer Wallace     291 Berry, Bellaire TX                   20-JUN-41 F      43000          4 Administration        987654321         30 Newbenefits                   4         20                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 987654321 Jennifer Wallace     291 Berry, Bellaire TX                   20-JUN-41 F      43000          4 Administration        987654321         20 Reorganization                4         10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 666884444 Ramesh Narayan       975 Fire Oak, Humble TX                  15-SEP-62 M      38000          5 Research              333445555          3 ProductZ                      5         40                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+
+     EMPID NAME                 ADDRESS                                  BDATE     S     SALARY        DNO DNAME                    MGR_ID        PNO PNAME                      PDNO        HRS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+---------- -------------------- ---------------------------------------- --------- - ---------- ---------- -------------------- ---------- ---------- -------------------- ---------- ----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 453453453 Joyce English        5631 Rice, Houston TX                    31-JUL-72 F      25000          5 Research              333445555          1 ProductX                      5         20                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 453453453 Joyce English        5631 Rice, Houston TX                    31-JUL-72 F      25000          5 Research              333445555          2 ProductY                      5         20                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 987987987 Ahmed Jabbar         980 Dallas, Houston TX                   29-MAR-69 M      25000          4 Administration        987654321         10 Computerization               4         35                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 987987987 Ahmed Jabbar         980 Dallas, Houston TX                   29-MAR-69 M      25000          4 Administration        987654321         30 Newbenefits                   4          5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ 888665555 James Borg           450 Stone, Houston TX                    10-NOV-37 M      55000          1 Headquarters          888665555         20 Reorganization                1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+
+16 rows selected.
+
+SQL> 
+SQL> REM *** 3NF TABLES JOINED USING NATURAL JOIN ***
+SQL> 
+SQL> SELECT *
+  2  FROM EMPLOYEES
+  3  NATURAL JOIN WORKING_HOURS
+  4  NATURAL JOIN DEPARTMENTS
+  5  NATURAL JOIN PROJECT;
+
+       PNO        DNO      EMPID NAME                 ADDRESS                                  BDATE     S     SALARY        HRS DNAME                    MGR_ID PNAME                      PDNO                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+---------- ---------- ---------- -------------------- ---------------------------------------- --------- - ---------- ---------- -------------------- ---------- -------------------- ----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         1          5  123456789 John Smith           731 Fondren, Houston TX                  09-JAN-65 M      30000         32 Research              333445555 ProductX                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         1          5  453453453 Joyce English        5631 Rice, Houston TX                    31-JUL-72 F      25000         20 Research              333445555 ProductX                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         2          5  123456789 John Smith           731 Fondren, Houston TX                  09-JAN-65 M      30000          8 Research              333445555 ProductY                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         2          5  333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000         10 Research              333445555 ProductY                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         2          5  453453453 Joyce English        5631 Rice, Houston TX                    31-JUL-72 F      25000         20 Research              333445555 ProductY                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         3          5  333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000         10 Research              333445555 ProductY                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+         3          5  666884444 Ramesh Narayan       975 Fire Oak, Humble TX                  15-SEP-62 M      38000         40 Research              333445555 ProductY                      5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        10          5  333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000         10 Research              333445555 Computerization               4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        10          4  999887777 Alicia Zelaya        3321 Castle, Spring TX                   19-JAN-68 F      25000         10 Administration        987654321 Computerization               4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        10          4  987987987 Ahmed Jabbar         980 Dallas, Houston TX                   29-MAR-69 M      25000         35 Administration        987654321 Computerization               4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        20          5  333445555 Franklin Wong        638 Voss, Houston TX                     08-DEC-55 M      40000         10 Research              333445555 Reorganization                4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+
+       PNO        DNO      EMPID NAME                 ADDRESS                                  BDATE     S     SALARY        HRS DNAME                    MGR_ID PNAME                      PDNO                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+---------- ---------- ---------- -------------------- ---------------------------------------- --------- - ---------- ---------- -------------------- ---------- -------------------- ----------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        20          4  987654321 Jennifer Wallace     291 Berry, Bellaire TX                   20-JUN-41 F      43000         10 Administration        987654321 Reorganization                4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        20          1  888665555 James Borg           450 Stone, Houston TX                    10-NOV-37 M      55000            Headquarters          888665555 Reorganization                4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        30          4  999887777 Alicia Zelaya        3321 Castle, Spring TX                   19-JAN-68 F      25000         30 Administration        987654321 Newbenefits                   1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        30          4  987654321 Jennifer Wallace     291 Berry, Bellaire TX                   20-JUN-41 F      43000         20 Administration        987654321 Newbenefits                   1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        30          4  987987987 Ahmed Jabbar         980 Dallas, Houston TX                   29-MAR-69 M      25000          5 Administration        987654321 Newbenefits                   1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+
+16 rows selected.
+
+SQL> spool off
